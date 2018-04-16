@@ -1,44 +1,41 @@
-var express = require('express');
-var synaptic = require('synaptic');
-var router = express.Router();
+const express = require('express');
+const synaptic = require('synaptic');
+const router = express.Router();
 
-var Neuron = synaptic.Neuron,
-        Layer = synaptic.Layer,
-        Network = synaptic.Network,
-        Trainer = synaptic.Trainer,
-        Architect = synaptic.Architect;
+const {Neuron, Layer, Network, Trainer, Architect} = synaptic;
 
-var inputLayer = new Layer(2);
-var hiddenLayer = new Layer(3);
-var outputLayer = new Layer(1);
+const inputLayer = new Layer(2);
+const hiddenLayer = new Layer(3);
+const outputLayer = new Layer(1);
 
 inputLayer.project(hiddenLayer);
 hiddenLayer.project(outputLayer);
 
-var myNetwork = new Network({
+const myNetwork = new Network({
     input: inputLayer,
     hidden: [hiddenLayer],
     output: outputLayer
 });
 
+function activateAndPropagate(learningRate, input, target){
+    myNetwork.activate(input);
+    myNetwork.propagate(learningRate, target);
+}
+
 /* GET home page. */
-router.get('/', function (req, res, next) {
+router.get('/', (req, res) => {
     // train the network - learn XOR
     console.log('Iniciando meu treinamento :) \n\n\n');
-    var learningRate = .3;
-    for (var i = 0; i < 20000; i++) {        
+    let learningRate = .3;
+    for (let i = 0; i < 20000; i++) {
         // 0,0 => 0
-        myNetwork.activate([0, 0]);
-        myNetwork.propagate(learningRate, [0]);
+        activateAndPropagate(learningRate,[0, 0],[0]);
         // 0,1 => 1
-        myNetwork.activate([0, 1]);
-        myNetwork.propagate(learningRate, [1]);
+        activateAndPropagate(learningRate,[0, 1],[1]);
         // 1,0 => 1
-        myNetwork.activate([1, 0]);
-        myNetwork.propagate(learningRate, [1]);
+        activateAndPropagate(learningRate,[1, 0],[1]);
         // 1,1 => 0
-        myNetwork.activate([1, 1]);
-        myNetwork.propagate(learningRate, [0]);
+        activateAndPropagate(learningRate,[1, 1],[0]);
     }
     console.log('\n\n Rede Treinada \n\n');
     console.log(myNetwork.activate([0,0]));   
